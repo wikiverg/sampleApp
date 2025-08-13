@@ -20,7 +20,8 @@ pipeline {
                 script {
                     def date = new Date().format('yyyyMMdd')
                     buildTag = "${date}.${env.BUILD_NUMBER}"
-                    currentBuild.displayName = buildTag
+                    env.BUILD_TAG = buildTag
+                    currentBuild.displayName = BUILD_TAG
                 }
             }
         }
@@ -28,7 +29,7 @@ pipeline {
         stage('Use Tag') {
             steps {
                 script {
-                    echo "The build tag is: ${buildTag}"
+                    echo "The build tag is: ${BUILD_TAG}"
                 }
             }
         }
@@ -42,7 +43,7 @@ pipeline {
         stage('Build & Push Docker Image') {
             steps {
                 script {
-                    buildDockerImage(buildTag)
+                    buildDockerImage(BUILD_TAG)
                 }
             }
         }
@@ -53,7 +54,7 @@ pipeline {
                 
                     script {
                         sh """
-                            sed -i "s/IMAGE_TAG/${buildTag}/g" deployment.yaml
+                            sed -i "s/IMAGE_TAG/${BUILD_TAG}/g" deployment.yaml
                             kubectl apply -f deployment.yaml
                         """
                     }
